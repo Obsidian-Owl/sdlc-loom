@@ -1,0 +1,51 @@
+# Envelope: design
+# Shape: open-ended-killable — architecture decisions and spikes. Ends in an
+# explicit go/kill, not a vague writeup. This is the envelope most likely to
+# warrant a panel (see docs/panel-pattern.md) given the stakes of a wrong call.
+envelope: design
+shape: open-ended-killable
+
+permissions:
+  filesystem: read-only
+  network: [web-search, web-fetch]
+  remoteWorld: read-only   # optional: validate a design against real running infra
+  writes: [artifact, github-comment]
+
+modelPolicy:
+  primary:
+    provider: pi-ai
+    model: qwen3.8-max
+  secondary:
+    provider: llm-deepseek
+    model: deepseek-v4-pro
+  escalatesTo:
+    provider: claude-code
+    condition: "high-stakes go/kill calls, or as panel judge — never both roles in one run"
+
+artifactPattern: "{artifactsRoot}/specs/{date}-{slug}-design.md"
+
+skills:
+  - id: bmad-architecture
+    source: bmad-code-org/BMAD-METHOD
+    ref: main
+    skillPath: skills/bmad-architecture/SKILL.md
+  - id: bmad-agent-architect
+    source: bmad-code-org/BMAD-METHOD
+    ref: main
+    skillPath: skills/bmad-agent-architect/SKILL.md
+  - id: bmad-agent-ux-designer
+    source: bmad-code-org/BMAD-METHOD
+    ref: main
+    skillPath: skills/bmad-agent-ux-designer/SKILL.md
+  - id: speckit-clarify
+    source: github/spec-kit
+    ref: main
+    skillPath: templates/commands/clarify.md
+    note: "ships as a Claude/Copilot slash-command file, not a SKILL.md — add a one-line name: frontmatter key when vendoring"
+  - id: speckit-analyze
+    source: github/spec-kit
+    ref: main
+    skillPath: templates/commands/analyze.md
+    note: "same adaptation as clarify above"
+
+decision: go | kill   # the envelope's defining output — see docs/panel-pattern.md for the anti-bias rule on who judges

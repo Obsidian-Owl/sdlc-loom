@@ -1,0 +1,3 @@
+name: sdlc-loom-ship
+description: Git and gh only, every write approval-gated.
+order: 6

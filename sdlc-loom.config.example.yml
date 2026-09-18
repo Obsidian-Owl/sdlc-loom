@@ -1,0 +1,23 @@
+# Copy to sdlc-loom.config.yml at your project's root and adjust.
+# This is Financial Fusion's actual configuration, used as the worked example.
+
+artifactsRoot: docs/superpowers   # matches an existing plans/specs convention — don't invent a new one
+
+envelopes:
+  research:
+    active: true
+  design:
+    active: true
+  plan:
+    active: true
+  build:
+    active: true
+    handledBy: superpowers   # already running here — this repo changes only its model route, not its content
+  verify:
+    active: true
+    handledBy: project-native
+  ship:
+    active: true
+    handledBy: project-native
+  operate:
+    active: false   # no remote world wired yet — see MAINTENANCE.md deferred list

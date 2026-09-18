@@ -1,0 +1,3 @@
+name: sdlc-loom-operate
+description: Read-only production observation, externally triggered.
+order: 7

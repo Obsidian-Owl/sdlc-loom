@@ -1,0 +1,41 @@
+# Envelope: research
+# Shape: open-ended-killable — no fixed deliverable shape going in; success is a
+# cheap, honest answer, including "found nothing conclusive."
+envelope: research
+shape: open-ended-killable
+
+permissions:
+  filesystem: read-only
+  network: [web-search, web-fetch]
+  writes: [artifact, github-comment]   # never the codebase
+
+modelPolicy:
+  primary:
+    provider: pi-ai
+    model: qwen3.8-max            # frontier-adjacent, $2/$6 per M tokens — see docs/model-routing.md
+  secondary:
+    provider: llm-deepseek
+    model: deepseek-v4-pro        # same Model Studio credit pool as primary; distinct family for panel use
+  escalatesTo:
+    provider: claude-code
+    condition: explicit-only      # never a default route — see docs/model-routing.md
+
+# {artifactsRoot} is set per consuming repo in sdlc-loom.config.yml.
+# Financial Fusion sets it to docs/superpowers, matching its existing plans/specs convention.
+artifactPattern: "{artifactsRoot}/research/{date}-{slug}.md"
+
+skills:
+  - id: bmad-deep-recon
+    source: bmad-code-org/BMAD-METHOD
+    ref: main
+    skillPath: skills/bmad-deep-recon/SKILL.md
+  - id: bmad-forge-idea
+    source: bmad-code-org/BMAD-METHOD
+    ref: main
+    skillPath: skills/bmad-forge-idea/SKILL.md
+  - id: bmad-prfaq
+    source: bmad-code-org/BMAD-METHOD
+    ref: main
+    skillPath: skills/bmad-prfaq/SKILL.md
+
+decision: none   # research produces findings, not a go/kill call — that's `design`

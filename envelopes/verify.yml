@@ -1,0 +1,25 @@
+# Envelope: verify
+# Shape: gated-linear — the keystone. Read-only file policy, but a shell that
+# runs where the system actually lives. Produces a verdict and evidence; never
+# repairs what it finds (reviewing and fixing in one session is how agents
+# talk themselves into green).
+envelope: verify
+shape: gated-linear
+
+permissions:
+  filesystem: read-only
+  shell: remote-world   # see docs/ for the SSH provider swap that makes this real, not aspirational
+  writes: [artifact, github-check, github-comment]
+
+modelPolicy:
+  primary:
+    provider: pi-ai
+    model: qwen3.6-flash   # running gate commands and reporting is mechanical
+  escalatesTo:
+    provider: claude-code
+    condition: "a genuinely ambiguous failure that needs interpretation, not just re-running"
+
+skills: []   # verify runs the project's own gate commands — nothing to vendor
+handledBy: project-native
+
+decision: pass | fail

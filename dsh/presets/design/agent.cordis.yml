@@ -1,0 +1,51 @@
+# sdlc-loom `design` preset — open-ended, killable, ends in an explicit go/kill.
+# Read-only, same shape as research, with an escalation path to Claude Code
+# for the hardest calls (see envelopes/design.yml, docs/model-routing.md).
+
+- id: persona
+  name: '@deepseek-ai/dsh-persona'
+  config:
+    prefix: >-
+      You evaluate whether to build this, not how. End with a short ADR
+      (context, decision, consequences) and an explicit `go` or `kill` — never
+      a writeup with no decision in it. A user's conversational agreement
+      approves nothing; the decision belongs in the ADR.
+    suffix: Your working directory is {{cwd}}.
+
+- id: tool-fs-search
+  name: '@deepseek-ai/dsh-tool-fs-search'
+  config:
+    sampleOverCapGlobResults: false
+
+- id: tool-web
+  name: '@deepseek-ai/dsh-tool-web'
+  config:
+    fetch: true
+    searchTimeoutMs: 60000
+
+- id: skill-filesystem
+  name: '@deepseek-ai/dsh-skill-filesystem'
+
+- id: tool-skill
+  name: '@deepseek-ai/dsh-tool-skill'
+
+- id: present
+  name: '@deepseek-ai/dsh-tool-present'
+
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: pi-ai
+    model: qwen3.8-max
+
+# Escalation path only — NOT mounted as a default tool. A consuming preset
+# copy removes `disabled` when a session explicitly wants a Claude Code
+# second opinion or panel judge. See docs/panel-pattern.md.
+- id: tool-subagent-claude-code
+  name: '@deepseek-ai/dsh-tool-subagent'
+  disabled: true
+  config:
+    provider: claude-code
+    toolName: subagent_claude_code
+    backgroundMode: one-shot
+    maxDepth: provider-managed

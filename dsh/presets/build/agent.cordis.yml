@@ -1,0 +1,47 @@
+# sdlc-loom `build` preset — gated-linear, local world, full write.
+# Skill content deliberately empty here (envelopes/build.yml handledBy:
+# project-native) — mount skill-filesystem so the project's OWN build
+# discipline (e.g. an obra/superpowers port) is discovered normally.
+
+- id: persona
+  name: '@deepseek-ai/dsh-persona'
+  config:
+    suffix: Your working directory is {{cwd}}.
+
+- id: tool-bash
+  name: '@deepseek-ai/dsh-tool-bash'
+  disabled: !!js process.platform === 'win32'
+
+- id: tool-pwsh
+  name: '@deepseek-ai/dsh-tool-pwsh'
+  disabled: !!js process.platform !== 'win32'
+
+- id: tool-fs
+  name: '@deepseek-ai/dsh-tool-fs'
+
+- id: tool-fs-search
+  name: '@deepseek-ai/dsh-tool-fs-search'
+  config:
+    sampleOverCapGlobResults: false
+
+- id: skill-filesystem
+  name: '@deepseek-ai/dsh-skill-filesystem'
+
+- id: tool-skill
+  name: '@deepseek-ai/dsh-tool-skill'
+
+- id: tool-todo
+  name: '@deepseek-ai/dsh-tool-todo'
+  config:
+    allowParallelInProgress: true
+
+- id: present
+  name: '@deepseek-ai/dsh-tool-present'
+
+# Model route: local world needs multi-turn conversation, so this stays
+# dsh-native (not a one-shot subscription delegate) — see docs/model-routing.md.
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: pi-ai
+    model: qwen3.6-flash

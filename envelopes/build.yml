@@ -1,0 +1,24 @@
+# Envelope: build
+# Shape: gated-linear — high-volume, well-defined. If your project already runs
+# obra/superpowers (or an equivalent build discipline), this envelope changes
+# only the model route, not the skill content — superpowers is not re-vendored here.
+envelope: build
+shape: gated-linear
+
+permissions:
+  filesystem: workspace-write
+  shell: local-world
+  writes: [codebase, git-commit]
+
+modelPolicy:
+  primary:
+    provider: pi-ai
+    model: qwen3.6-flash    # strong-coding, low-cost tier — build needs conversational/multi-turn, not one-shot
+  escalatesTo:
+    provider: claude-code
+    condition: explicit-only
+
+skills: []   # intentionally empty — defer to whatever build discipline the project already has (e.g. obra/superpowers)
+handledBy: project-native   # a consuming repo's sdlc-loom.config.yml states what this actually is
+
+decision: none

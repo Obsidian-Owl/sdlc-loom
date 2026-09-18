@@ -1,0 +1,57 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Envelope YAML is syntactically valid
+        run: npx --yes yaml-lint envelopes/*.yml
+      - name: Required top-level keys present in every envelope
+        run: |
+          for f in envelopes/*.yml; do
+            for key in envelope shape modelPolicy skills decision; do
+              grep -q "^${key}:" "$f" || { echo "::error file=$f::missing required key '$key'"; exit 1; }
+            done
+          done
+      - name: No orphaned skillPath entries (source repos must be reachable)
+        run: |
+          for f in envelopes/*.yml; do
+            grep -oP '(?<=source: ).*' "$f" | sort -u | while read -r repo; do
+              [ -z "$repo" ] && continue
+              curl -sfI "https://github.com/$repo" > /dev/null || { echo "::error file=$f::unreachable source repo '$repo'"; exit 1; }
+            done
+          done
+
+  dsh-presets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install -g @deepseek-ai/dsh
+      - name: Every preset composes without error (no credential required)
+        run: |
+          for env in research design plan build verify ship operate; do
+            echo "=== $env ==="
+            DSH_HOME=$(mktemp -d)
+            cat > "$DSH_HOME/loom-test.patch.yml" <<EOF
+          - id: agent-presets
+            name: '@deepseek-ai/dsh-agent-presets'
+            config:
+              default: $env
+              roots:
+                - path: $(pwd)/dsh/presets
+                  trust: system
+          EOF
+            DSH_HOME="$DSH_HOME" dsh --profile web --patch "$DSH_HOME/loom-test.patch.yml" --dump-config > /dev/null
+          done

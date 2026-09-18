@@ -1,0 +1,44 @@
+# Envelope: plan
+# Shape: decomposition — the work IS the graph. Takes an approved design and
+# produces dependency-ordered work items. Output is dispatchable: each opened
+# issue is exactly what an orchestration trigger (see docs/) watches for.
+envelope: plan
+shape: decomposition
+
+permissions:
+  filesystem: read-only
+  writes: [github-issue]   # the entire point of this envelope — never the codebase
+
+modelPolicy:
+  primary:
+    provider: pi-ai
+    model: qwen3.8-max     # decomposition is a reasoning task; issue creation afterward is mechanical
+  secondary:
+    provider: llm-deepseek
+    model: deepseek-v4-pro
+  escalatesTo:
+    provider: claude-code
+    condition: explicit-only
+
+artifactPattern: "{artifactsRoot}/plans/{date}-{slug}.md"
+
+skills:
+  - id: bmad-prd
+    source: bmad-code-org/BMAD-METHOD
+    ref: main
+    skillPath: skills/bmad-prd/SKILL.md
+  - id: bmad-create-epics-and-stories
+    source: bmad-code-org/BMAD-METHOD
+    ref: main
+    skillPath: skills/bmad-create-epics-and-stories/SKILL.md
+  - id: bmad-sprint-planning
+    source: bmad-code-org/BMAD-METHOD
+    ref: main
+    skillPath: skills/bmad-sprint-planning/SKILL.md
+  - id: speckit-taskstoissues
+    source: github/spec-kit
+    ref: main
+    skillPath: templates/commands/taskstoissues.md
+    note: "the actual issue-creation mechanism — calls GitHub's own MCP issue_write tool; adapt the same way as design.yml's speckit entries"
+
+decision: none   # plan's output is the work-item graph itself, not a go/kill

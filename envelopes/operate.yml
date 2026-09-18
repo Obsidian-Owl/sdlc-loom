@@ -1,0 +1,25 @@
+# Envelope: operate
+# Shape: continuous-reactive — never "completes"; triggered from outside
+# (cron or an event), not by a human typing. Read-only against production by
+# construction.
+envelope: operate
+shape: continuous-reactive
+
+permissions:
+  filesystem: read-only
+  shell: remote-world
+  writes: [github-issue]   # opens an issue only on drift; silent otherwise
+
+modelPolicy:
+  primary:
+    provider: pi-ai
+    model: qwen3.6-flash
+  escalatesTo:
+    provider: claude-code
+    condition: explicit-only
+
+skills: []
+handledBy: project-native
+
+trigger: external-cron    # NOT dsh's own ctx.schedule, which cannot cold-start a session — see docs/orchestration.md
+decision: none

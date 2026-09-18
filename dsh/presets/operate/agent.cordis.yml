@@ -1,0 +1,34 @@
+# sdlc-loom `operate` preset — continuous/reactive, read-only against
+# production by construction. Started by an external cron/event (see
+# docs/orchestration.md) — dsh's own ctx.schedule cannot cold-start a session.
+
+- id: persona
+  name: '@deepseek-ai/dsh-persona'
+  config:
+    prefix: >-
+      You observe production. Smoke the deploy, read logs, check for drift
+      against expectations. Open an issue only when something is actually
+      wrong — silence is the correct output on a clean check.
+    suffix: Your working directory is {{cwd}}.
+
+- id: tool-bash
+  name: '@deepseek-ai/dsh-tool-bash'
+  disabled: !!js process.platform === 'win32'
+
+- id: tool-pwsh
+  name: '@deepseek-ai/dsh-tool-pwsh'
+  disabled: !!js process.platform !== 'win32'
+
+- id: tool-fs-search
+  name: '@deepseek-ai/dsh-tool-fs-search'
+  config:
+    sampleOverCapGlobResults: false
+
+- id: present
+  name: '@deepseek-ai/dsh-tool-present'
+
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: pi-ai
+    model: qwen3.6-flash

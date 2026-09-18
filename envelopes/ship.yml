@@ -1,0 +1,21 @@
+# Envelope: ship
+# Shape: gated-linear — git and the forge only, every write approval-gated.
+envelope: ship
+shape: gated-linear
+
+permissions:
+  filesystem: workspace-write
+  scope: [git, gh]        # nothing else
+  approval: ask           # every write requires approval — see dsh's own dsh-user-approval seam
+  writes: [git-commit, pull-request]
+
+modelPolicy:
+  primary:
+    provider: pi-ai
+    model: qwen3.6-flash   # no reasoning depth required
+  escalatesTo: none
+
+skills: []
+handledBy: project-native
+
+decision: none
