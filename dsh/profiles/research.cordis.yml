@@ -1,0 +1,84 @@
+# sdlc-loom `research` profile — open-ended, killable, read-only.
+#
+# Superseded the `research` PRESET (removed) after live testing proved
+# presets never reach a headless-created agent (issue #7) and, separately,
+# that a dsh-persona/`prefix` row never reaches one either even at the host
+# level (only dsh-system-prompt's `personaPrefix` does — verified directly).
+# Every row below is used because it was tested, not because it looked right.
+#
+# Usage:
+#   dsh --profile headless \
+#     --patch dsh/host-patches/llm-pi-ai.cordis.yml \
+#     --patch dsh/profiles/research.cordis.yml \
+#     "<task>"
+
+- id: system-prompt
+  config:
+    personaPrefix: >-
+      You research. You do not build, and you do not decide whether to build.
+      Produce findings, cite what you checked, and name what you could not
+      verify. A confident "I don't know yet" is a better answer than a guess
+      dressed as a finding.
+
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: dashscope   # route key from llm-pi-ai.cordis.yml — swap to zhipu freely, same shape
+    model: qwen3.8-max
+
+# The real boundary: sandbox mode governs EVERY file effect for this process,
+# including ones a shell command would cause — not just the dedicated
+# read/write tool. Verified directly: a write attempt is denied at the
+# enforcement layer (EROFS-class denial), the file is provably unchanged on
+# disk, and an escalation path exists (sandbox_permissions + justification,
+# gated on user approval) rather than a silent failure.
+- id: sandbox-policy
+  config:
+    mode: read-only
+
+# No shell at all for this envelope — there's nothing research needs to run.
+- id: tool-bash
+  disabled: true
+- id: tool-pwsh
+  disabled: true
+
+# Disabled as defense in depth, not because sandbox mode alone doesn't cover
+# it: a subagent or workflow run is a SEPARATE process/call whose own sandbox
+# resolution wasn't independently re-verified here. Don't rely on inheritance
+# assumptions for a capability boundary — disable the delegation surface
+# directly instead of trusting it flows through correctly.
+- id: tool-subagent
+  disabled: true
+- id: tool-ralph
+  disabled: true   # off by default host-wide too, but made explicit here rather than relied on
+- id: tool-subagent-fork
+  disabled: true
+- id: tool-subagent-control
+  disabled: true
+- id: tool-subagent-list-agents
+  disabled: true
+- id: tool-workflow
+  disabled: true
+- id: tool-jobs
+  disabled: true
+
+# NOTE: customSkillDirs is checked against the real config schema
+# (config-catalog.md) but not live-tested with an actual skill file the way
+# everything above this line was — verify with a real skill before trusting it.
+- id: skill-filesystem
+  name: '@deepseek-ai/dsh-skill-filesystem'
+  config:
+    customSkillDirs:
+      - !!js process.cwd() + '/.agents/skills'  # matches the Financial Fusion convention — adjust per consuming repo
+
+# tool-fs stays enabled — disabling it removes `read`, not just `write`
+# (confirmed directly: they're one package). read-only sandbox mode is what
+# makes write attempts through it fail; the tool itself must stay mounted.
+
+# tool-web (search/fetch) and tool-fs-search (glob/grep) are untouched — both
+# ship enabled in dsh-base and that's exactly what this envelope needs.
+
+# Skills for this envelope are vendored per envelope.yml, never copied into
+# this repo — see ../../envelopes/research.yml for the full, current list.
+# bmad-deep-recon is the one actually exercised in the Financial Fusion
+# dogfood. Point dsh-skill-filesystem's `roots:` at wherever you vendor it.

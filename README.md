@@ -23,7 +23,7 @@ Both rules exist because the alternative — a bespoke methodology with its own 
 | `ship` | gated-linear | Git/gh only, approval-gated |
 | `operate` | continuous-reactive | Read-only production observation, externally triggered |
 
-Full definitions: `envelopes/*.yml`. dsh preset reference implementations: `dsh/presets/*/`.
+Full definitions: `envelopes/*.yml`. dsh reference implementations: `dsh/profiles/*.cordis.yml` — one complete host-plane patch per envelope (persona, tool boundary, model route, skill root). Not presets: `dsh-agent-presets` never reaches a headless-created agent, confirmed live and tracked as [issue #7](https://github.com/Obsidian-Owl/sdlc-loom/issues/7) — see `docs/model-routing.md` for the full story.
 
 ## Quickstart
 

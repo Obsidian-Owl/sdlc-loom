@@ -12,7 +12,7 @@ Each entry names an upstream `{source, ref, skillPath}` — a pointer, not a cop
 - **How:** `curl` the `skillPath` against the pinned `ref`; a 404 or a frontmatter shape change is the signal. There's no automated hash-check yet (see "Deferred" below) — `.github/workflows/validate.yml` checks the YAML schema, not upstream liveness.
 - **Owner:** whoever is actively using the envelope that broke. There's no dedicated maintainer role for a repo this size.
 
-## dsh preset files (`dsh/presets/*/agent.cordis.yml`)
+## dsh profile files (`dsh/profiles/*.cordis.yml`)
 
 - Every package name referenced (`dsh-persona`, `dsh-tool-fs-search`, `dsh-tool-web`, etc.) is pinned against dsh 0.1.5-rc.2's actual shipped composition, verified with `dsh --dump-config` against a scratch profile — not guessed.
 - **When dsh cuts a new version:** re-run the same `--dump-config` smoke test in `.github/workflows/validate.yml` against the new version before assuming these still compose. dsh is a developer preview; its own README warns of compatibility-breaking changes.

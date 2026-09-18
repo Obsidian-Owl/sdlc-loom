@@ -10,6 +10,12 @@
 // part of the default set — see docs/model-routing.md for why.
 
 import { spawn } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const HOST_PATCH = join(__dirname, '..', 'dsh', 'host-patches', 'llm-pi-ai.cordis.yml')
+const profilePatch = (envelope) => join(__dirname, '..', 'dsh', 'profiles', `${envelope}.cordis.yml`)
 
 /** Run one CLI leg, returning {family, ok, text, error}. Never throws. */
 function runLeg({ family, cmd, args }) {
@@ -34,17 +40,25 @@ const LEGS = {
   // OpenAI family — subscription (ChatGPT), available but not in the default set.
   codex: (prompt) => runLeg({ family: 'openai', cmd: 'codex', args: ['exec', prompt] }),
 
-  // Alibaba family — Model Studio / Qwen Token Plan, dsh-native, metered against
-  // the prepaid credit pool. Requires a Model Studio credential — see SETUP.md.
-  // NOTE, confirmed against dsh 0.1.5-rc.2: `--profile headless` has no
-  // `--preset` flag. Preset selection is a profile/settings concern, not a CLI
-  // argument, in this dsh version — point `--profile` at a profile whose
-  // agent-presets `default:` is already `research` (or whichever envelope
-  // this panel run is for) rather than passing one here.
-  qwen: (prompt) => runLeg({ family: 'alibaba', cmd: 'dsh', args: ['--profile', 'headless', prompt] }),
+  // Alibaba family — Model Studio / Qwen Token Plan, dsh-native, metered
+  // against the prepaid credit pool. Requires DASHSCOPE_API_KEY — see
+  // SETUP.md. Envelopes are dsh/profiles/*.cordis.yml patches, not presets
+  // (presets never reach a headless-created agent — issue #7). `research` is
+  // this leg's default since a panel run is inherently advisory, not a
+  // default matched to whichever envelope invoked the panel — override via
+  // the `envelope` option below when running from inside a different one.
+  qwen: (prompt, envelope = 'research') =>
+    runLeg({
+      family: 'alibaba',
+      cmd: 'dsh',
+      args: ['--profile', 'headless', '--patch', HOST_PATCH, '--patch', profilePatch(envelope), prompt],
+    }),
 
-  // DeepSeek family — same Model Studio credit pool as qwen (per the current
-  // promotion bundling DeepSeek-V4-Pro), distinct family for panel purposes.
+  // DeepSeek family — dsh's own native adapter (deepseek-official), needs
+  // its own DEEPSEEK_API_KEY, separate from the Qwen/GLM keys. A running
+  // Model Studio promotion suggests DeepSeek-V4-Pro may also be reachable
+  // through the SAME dashscope route as qwen — not verified here, so this
+  // leg uses the plain native default instead of an unverified assumption.
   deepseek: (prompt) =>
     runLeg({ family: 'deepseek', cmd: 'dsh', args: ['--profile', 'headless', prompt] }),
 }

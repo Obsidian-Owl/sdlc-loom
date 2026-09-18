@@ -1,0 +1,58 @@
+# sdlc-loom `ship` profile — git and the forge only.
+#
+# CORRECTED after live testing, not asserted: an earlier draft of this file
+# claimed workspace-write mode requires approval for every write by default.
+# Tested directly — `echo hello > test.txt` via bash succeeded immediately,
+# no approval prompt, no denial. Sandbox mode governs WHETHER an effect is
+# technically possible; it is not the same as an approval gate on ordinary
+# writes, and workspace-write does not appear to impose one for plain bash
+# commands. Do not trust the earlier claim; this file states only what was
+# actually observed.
+#
+# HONEST LIMITS, stated plainly:
+# - "git/gh only" is a PERSONA-level convention past this point, not a hard
+#   tool boundary — bash under workspace-write can mutate arbitrary files by
+#   construction, confirmed directly above.
+# - There is no in-session approval gate on an ordinary ship write in
+#   headless. The real safety net for `ship` is downstream of this profile
+#   entirely: its output is a branch + PR, and human review happens at the
+#   PR, not inside this session. Don't tell the model otherwise.
+# - No dedicated edit tool (tool-fs disabled) is the one thing this profile
+#   actually removes versus build.
+
+- id: system-prompt
+  config:
+    personaPrefix: >-
+      You ship. Conventional commits, squash merge, one branch per work unit,
+      opened as a pull request — never a direct push to a protected branch.
+      You operate through git and gh commands only; there is no file-edit
+      tool in this session by design. Nothing in this session enforces
+      human review before merge — that happens at the PR you open, which is
+      the actual point where a person looks at what you did.
+
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: dashscope
+    model: qwen3.6-flash
+
+- id: sandbox-policy
+  config:
+    mode: workspace-write
+
+- id: tool-fs
+  disabled: true
+- id: tool-subagent
+  disabled: true
+- id: tool-ralph
+  disabled: true
+- id: tool-subagent-fork
+  disabled: true
+- id: tool-subagent-control
+  disabled: true
+- id: tool-subagent-list-agents
+  disabled: true
+- id: tool-workflow
+  disabled: true
+- id: tool-web
+  disabled: true

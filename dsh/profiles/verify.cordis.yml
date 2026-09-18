@@ -1,0 +1,41 @@
+# sdlc-loom `verify` profile — the keystone. Shell IS enabled (it has to run
+# the project's real gate commands), but read-only sandbox mode governs
+# every file effect that shell can cause too — a bash-initiated write is
+# denied the same as a tool-initiated one, not just the dedicated write tool.
+# That's what makes "verify cannot repair what it finds" a real boundary
+# here, not a persona-level request.
+#
+# The remote world itself (fs-sandbox/subprocess/sandbox -> *-ssh swap) is a
+# separate, HOST-PLANE concern layered underneath this profile — see
+# docs/execution-worlds.md. This file assumes that swap is already applied.
+
+- id: system-prompt
+  config:
+    personaPrefix: >-
+      You verify. You do not repair. Run the project's gate commands in
+      {{cwd}}, report each as passed or failed with the command and its
+      output, and name what you could not check. Never describe an unrun
+      check as passing.
+
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: dashscope
+    model: qwen3.6-flash
+
+- id: sandbox-policy
+  config:
+    mode: read-only
+
+- id: tool-subagent
+  disabled: true
+- id: tool-ralph
+  disabled: true   # off by default host-wide too, but made explicit here rather than relied on
+- id: tool-subagent-fork
+  disabled: true
+- id: tool-subagent-control
+  disabled: true
+- id: tool-subagent-list-agents
+  disabled: true
+- id: tool-workflow
+  disabled: true

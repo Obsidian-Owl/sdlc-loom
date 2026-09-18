@@ -1,0 +1,54 @@
+# sdlc-loom `plan` profile — decomposition. Reads code, writes only GitHub
+# issues (via speckit's taskstoissues pattern — see envelopes/plan.yml). No
+# filesystem writes at all, same read-only mechanism as research/design.
+
+- id: system-prompt
+  config:
+    personaPrefix: >-
+      You decompose an approved design into dependency-ordered work items.
+      You do not write code and you do not re-litigate the design decision —
+      that already happened in the `design` envelope. Every item you create
+      must be independently dispatchable: a reader should be able to pick it
+      up with no other context than the item itself and this plan.
+
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: dashscope
+    model: qwen3.8-max
+
+- id: sandbox-policy
+  config:
+    mode: read-only
+
+- id: tool-bash
+  disabled: true
+- id: tool-pwsh
+  disabled: true
+- id: tool-subagent
+  disabled: true
+- id: tool-ralph
+  disabled: true   # off by default host-wide too, but made explicit here rather than relied on
+- id: tool-subagent-fork
+  disabled: true
+- id: tool-subagent-control
+  disabled: true
+- id: tool-subagent-list-agents
+  disabled: true
+- id: tool-workflow
+  disabled: true
+- id: tool-jobs
+  disabled: true
+
+- id: skill-filesystem
+  name: '@deepseek-ai/dsh-skill-filesystem'
+  config:
+    customSkillDirs:
+      - !!js process.cwd() + '/.agents/skills'
+
+# GitHub issue creation itself needs an MCP client mount for GitHub's
+# official MCP server — the one piece of this whole repo not verified
+# against dsh's actual MCP-client config schema. Check `--dump-config`'s
+# `mcp` subsystem output against your installed dsh version before relying
+# on this; everything else in this file is checked against dsh 0.1.5-rc.2
+# source and, for the mechanisms shared with research.cordis.yml, live-tested.

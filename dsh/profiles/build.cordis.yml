@@ -1,0 +1,31 @@
+# sdlc-loom `build` profile — gated-linear, local world, full read/write.
+# Skill content deliberately not vendored here (envelopes/build.yml
+# handledBy: project-native) — skill-filesystem still mounts so whatever
+# build discipline the project already runs (e.g. an obra/superpowers port)
+# is discovered normally.
+
+# No system-prompt override — dsh-base's own default (personaPrefix: '') is
+# a no-op we'd otherwise just be re-asserting. build takes the project's own
+# AGENTS.md/CLAUDE.md as its main guidance instead of a custom persona.
+
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: dashscope
+    model: qwen3.6-flash   # strong-coding, low-cost — build is high-volume and needs conversational back-and-forth
+
+- id: sandbox-policy
+  config:
+    mode: workspace-write
+
+# Subagent delegation stays ON here specifically — superpowers'
+# subagent-driven-development stage genuinely uses it. tool-workflow off:
+# not needed for a single build session.
+- id: tool-workflow
+  disabled: true
+
+- id: skill-filesystem
+  name: '@deepseek-ai/dsh-skill-filesystem'
+  config:
+    customSkillDirs:
+      - !!js process.cwd() + '/.agents/skills'

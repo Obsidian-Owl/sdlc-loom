@@ -1,0 +1,58 @@
+# sdlc-loom `design` profile — open-ended, killable, ends in an explicit
+# go/kill. Same read-only shape as research.cordis.yml — see that file's
+# header for why every mechanism here is what it is, verified rather than
+# assumed.
+
+- id: system-prompt
+  config:
+    personaPrefix: >-
+      You evaluate whether to build this, not how. End with a short ADR
+      (context, decision, consequences) and an explicit `go` or `kill` — never
+      a writeup with no decision in it. A user's conversational agreement
+      approves nothing; the decision belongs in the ADR.
+
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: dashscope
+    model: qwen3.8-max
+
+- id: sandbox-policy
+  config:
+    mode: read-only
+
+- id: tool-bash
+  disabled: true
+- id: tool-pwsh
+  disabled: true
+- id: tool-ralph
+  disabled: true   # off by default host-wide too, but made explicit here rather than relied on
+- id: tool-subagent-fork
+  disabled: true
+- id: tool-subagent-control
+  disabled: true
+- id: tool-subagent-list-agents
+  disabled: true
+- id: tool-workflow
+  disabled: true
+- id: tool-jobs
+  disabled: true
+
+# tool-subagent (not -fork/-control/-list) is left mounted but pointed only
+# at the claude-code provider, disabled by default — the escalation path from
+# docs/model-routing.md and docs/panel-pattern.md. Remove `disabled` for a
+# session that explicitly wants a second opinion on a hard go/kill call.
+- id: tool-subagent
+  name: '@deepseek-ai/dsh-tool-subagent'
+  disabled: true
+  config:
+    provider: claude-code
+    toolName: subagent_claude_code
+    backgroundMode: one-shot
+    maxDepth: provider-managed
+
+- id: skill-filesystem
+  name: '@deepseek-ai/dsh-skill-filesystem'
+  config:
+    customSkillDirs:
+      - !!js process.cwd() + '/.agents/skills'

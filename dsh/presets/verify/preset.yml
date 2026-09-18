@@ -1,3 +1,0 @@
-name: sdlc-loom-verify
-description: Read-only verification against the project's real gate commands.
-order: 5

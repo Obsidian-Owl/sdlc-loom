@@ -1,0 +1,37 @@
+# sdlc-loom `operate` profile — continuous/reactive, read-only against
+# production by construction (same sandbox mechanism as verify.cordis.yml).
+# Started by an external cron/event — dsh's own ctx.schedule cannot
+# cold-start a session, confirmed directly against its own docs. See
+# docs/orchestration.md.
+
+- id: system-prompt
+  config:
+    personaPrefix: >-
+      You observe production. Smoke the deploy, read logs, check for drift
+      against expectations. Open an issue only when something is actually
+      wrong — silence is the correct output on a clean check.
+
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: dashscope
+    model: qwen3.6-flash
+
+- id: sandbox-policy
+  config:
+    mode: read-only
+
+- id: tool-subagent
+  disabled: true
+- id: tool-ralph
+  disabled: true   # off by default host-wide too, but made explicit here rather than relied on
+- id: tool-subagent-fork
+  disabled: true
+- id: tool-subagent-control
+  disabled: true
+- id: tool-subagent-list-agents
+  disabled: true
+- id: tool-workflow
+  disabled: true
+- id: tool-web
+  disabled: true

@@ -31,7 +31,7 @@ jobs:
             done
           done
 
-  dsh-presets:
+  dsh-profiles:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,19 +39,34 @@ jobs:
         with:
           node-version: '22'
       - run: npm install -g @deepseek-ai/dsh
-      - name: Every preset composes without error (no credential required)
+      - name: Every profile composes without error (structural check, no credential required)
         run: |
           for env in research design plan build verify ship operate; do
             echo "=== $env ==="
             DSH_HOME=$(mktemp -d)
-            cat > "$DSH_HOME/loom-test.patch.yml" <<EOF
-          - id: agent-presets
-            name: '@deepseek-ai/dsh-agent-presets'
-            config:
-              default: $env
-              roots:
-                - path: $(pwd)/dsh/presets
-                  trust: system
-          EOF
-            DSH_HOME="$DSH_HOME" dsh --profile web --patch "$DSH_HOME/loom-test.patch.yml" --dump-config > /dev/null
+            DSH_HOME="$DSH_HOME" dsh --profile web \
+              --patch dsh/host-patches/llm-pi-ai.cordis.yml \
+              --patch "dsh/profiles/$env.cordis.yml" \
+              --dump-config > "/tmp/dump-$env.txt"
+          done
+      # Composing cleanly is not sufficient — issue #7 was exactly a case that
+      # passed this check while being silently wrong at runtime. This step
+      # catches the specific, previously-real failure mode: a profile's
+      # persona/model-route content not actually present in the composed
+      # tree, which is at least a necessary (if not sufficient) condition for
+      # it being live. It cannot replace the manual live-call verification
+      # documented in docs/model-routing.md — see MAINTENANCE.md for why a
+      # full live-credential CI smoke test remains a deferred, heavier fix.
+      - name: Composed output actually contains each profile's distinguishing content
+        run: |
+          declare -A NEEDLE=(
+            [research]="You research"
+            [design]="you evaluate whether to build"
+            [plan]="dependency-ordered work items"
+            [verify]="You verify. You do not repair"
+            [ship]="You ship"
+            [operate]="You observe production"
+          )
+          for env in research design plan verify ship operate; do
+            grep -qi "${NEEDLE[$env]}" "/tmp/dump-$env.txt" || { echo "::error::$env's composed config does not contain its expected persona text"; exit 1; }
           done
