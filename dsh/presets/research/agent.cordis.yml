@@ -33,11 +33,3 @@
 - id: present
   name: '@deepseek-ai/dsh-tool-present'
 
-# Model route: see envelopes/research.yml + docs/model-routing.md.
-# The exact `llm-pi-ai` provider-profile keys (apiKeyEnv, baseURL, model alias)
-# are a host-plane settings.yaml concern, not this preset — see SETUP.md.
-- id: agent-default-model
-  name: '@deepseek-ai/dsh-agent-default-model'
-  config:
-    provider: pi-ai
-    model: qwen3.8-max

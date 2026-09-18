@@ -8,7 +8,8 @@ Every envelope's default route is Qwen via Alibaba Cloud's [Qwen Token Plan](htt
 
 - **Start on the Standard tier** ($18/mo, ~40,000 credits/month) to prove the pattern before considering Pro. This is your spend decision, not one this repo makes for you.
 - A running promotion currently 2x's credit usage for **Qwen3.8-Max** and **DeepSeek-V4-Pro** specifically — both are bundled in the same credit pool, so one key plausibly covers dsh's native DeepSeek path too. Worth confirming against the console at signup time, since promotions change.
-- Once you have a key: it needs to reach dsh through a `llm-pi-ai:` section in `$DSH_HOME/settings.yaml` (dsh's multi-provider adapter, mounted dormant until you supply provider profiles). **This repo's preset files declare the intended route (`provider: pi-ai, model: qwen3.8-max` etc.) but the actual override was not confirmed to take effect against the host default in dsh 0.1.5-rc.2 — see the known gap in `docs/model-routing.md` before assuming this works end-to-end.** Confirm with `dsh --profile <x> --dump-config` and a real headless run once you have the key.
+- Once you have a key: it needs to reach dsh through `dsh/host-patches/llm-pi-ai.cordis.yml` (a **plugin config row**, not a settings.yaml section as an earlier draft of this file said) plus a model-tier patch from `dsh/profiles/` — see `docs/model-routing.md` for the exact, live-verified shape. Both Qwen and GLM Coding Plan are confirmed working end-to-end as of 2026-09-18, real credentials, real responses.
+- **Read `docs/model-routing.md`'s last section before relying on this in automation.** Model routing itself is solid; whether preset selection (the actual capability-boundary mechanism) reaches a headless/CI-triggered session is a separate, larger open question — check the linked issue's status.
 
 ## 2. Nothing else, for the panel script's Claude and Codex legs
 

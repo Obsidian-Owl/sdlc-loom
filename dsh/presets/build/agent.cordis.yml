@@ -38,10 +38,3 @@
 - id: present
   name: '@deepseek-ai/dsh-tool-present'
 
-# Model route: local world needs multi-turn conversation, so this stays
-# dsh-native (not a one-shot subscription delegate) — see docs/model-routing.md.
-- id: agent-default-model
-  name: '@deepseek-ai/dsh-agent-default-model'
-  config:
-    provider: pi-ai
-    model: qwen3.6-flash

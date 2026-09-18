@@ -1,0 +1,35 @@
+# Host-plane patch. Goes in a project's profiles/<name>/cordis.patch.yml —
+# NOT copied into every preset. `llm-pi-ai` ships mounted in dsh-base with no
+# `config:` at all (zero routes, fully dormant); this is the one patch that
+# feeds it real ones, shared by every preset that references them.
+#
+# Verified live, both routes, 2026-09-18 — see docs/model-routing.md.
+#
+# The provider identifier a preset uses is the ROUTE KEY below (`dashscope`,
+# `zhipu`), never the literal string `pi-ai`. That distinction is exactly
+# what issue #1 turned out to be — `pi-ai` names the adapter *package*, not
+# a provider a request can be routed to.
+
+- id: llm-pi-ai
+  name: '@deepseek-ai/dsh-llm-pi-ai'
+  config:
+    providers:
+      # Qwen Token Plan (Alibaba Cloud), via Model Studio.
+      dashscope:
+        apiKeyEnv: DASHSCOPE_API_KEY
+        baseURL: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+        api: openai-completions
+        models:
+          - id: qwen3.8-max
+          - id: qwen3.6-flash
+
+      # GLM Coding Plan (Zhipu / Z.ai). Note the endpoint path: the Coding
+      # Plan uses /api/coding/paas/v4, NOT /api/paas/v4 (that's the separate
+      # pay-as-you-go path and won't draw against a Coding Plan subscription).
+      zhipu:
+        apiKeyEnv: ZAI_CODING_API_KEY
+        baseURL: https://api.z.ai/api/coding/paas/v4
+        api: openai-completions
+        models:
+          - id: glm-5.2
+          - id: glm-4.5-air

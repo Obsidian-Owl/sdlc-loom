@@ -35,8 +35,3 @@
 - id: tool-skill
   name: '@deepseek-ai/dsh-tool-skill'
 
-- id: agent-default-model
-  name: '@deepseek-ai/dsh-agent-default-model'
-  config:
-    provider: pi-ai
-    model: qwen3.6-flash

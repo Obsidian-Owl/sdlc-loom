@@ -1,0 +1,9 @@
+# The "cheap" tier counterpart to frontier.cordis.yml — for build/verify/
+# ship/operate. Same mechanism, see that file's header for why this is a
+# separate profile-level patch rather than something embedded per-preset.
+
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: dashscope
+    model: qwen3.6-flash

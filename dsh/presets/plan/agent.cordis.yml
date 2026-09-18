@@ -26,11 +26,6 @@
 - id: present
   name: '@deepseek-ai/dsh-tool-present'
 
-- id: agent-default-model
-  name: '@deepseek-ai/dsh-agent-default-model'
-  config:
-    provider: pi-ai
-    model: qwen3.8-max
 
 # NOTE: GitHub issue creation (speckit's taskstoissues pattern, skills/plan.yml)
 # needs an MCP client mount for GitHub's official MCP server. This is the one
